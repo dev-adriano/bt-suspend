@@ -1,0 +1,26 @@
+#/etc/systemd/system/bt-restart.service
+#sudo systemctl enable bt-restart.service
+#sudo systemctl start bt-restart.service
+#sudo systemctl stop bt-restart.service
+#sudo systemctl disable bt-restart.service
+#systemctl status bt-restart.service
+#sudo systemctl daemon-reload
+
+[Unit]
+Description=Disable, then restart bt
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+User=root
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=-/usr/bin/sudo -u $USER /bin/bash -lc 'nmcli networking off'
+ExecStart=/usr/bin/sleep 1
+ExecStart=/usr/bin/sudo -E  /usr/local/bin/disable_bt.sh
+ExecStop=/usr/bin/sudo -E  /usr/local/bin/enable_bt.sh
+ExecStop=/usr/bin/sleep 2
+ExecStopPost=-/usr/bin/sudo -u $USER /bin/bash -lc 'nmcli networking on'
+
+[Install]
+WantedBy=sleep.target
